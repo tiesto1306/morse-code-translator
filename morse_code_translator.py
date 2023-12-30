@@ -85,6 +85,14 @@ def translate_and_play():
     # Translate text to Morse code and play the sound
     text_to_morse_sound(input_text, frequency, volume)
 
+def update_frequency(val):
+    frequency_entry.delete(0, 'end')
+    frequency_entry.insert(0, val)
+
+def update_volume(val):
+    volume_entry.delete(0, 'end')
+    volume_entry.insert(0, val)
+
 # GUI setup
 root = tk.Tk()
 root.title("Morse Code Translator")
@@ -104,13 +112,19 @@ frequency_entry = ttk.Entry(root, width=10)
 frequency_entry.insert(0, "500")  # Default frequency
 frequency_entry.grid(row=1, column=1, padx=10, pady=10)
 
+frequency_slider = ttk.Scale(root, from_=100, to=10000, orient=tk.HORIZONTAL, value=500, command=update_frequency)
+frequency_slider.grid(row=1, column=2, padx=10, pady=10)
+
 # Volume Entry
 volume_label = ttk.Label(root, text="Volume:")
 volume_label.grid(row=2, column=0, padx=10, pady=10, sticky="W")
 
 volume_entry = ttk.Entry(root, width=10)
-volume_entry.insert(0, "1.0")  # Default volume
+volume_entry.insert(0, "100")  # Default volume
 volume_entry.grid(row=2, column=1, padx=10, pady=10)
+
+volume_slider = ttk.Scale(root, from_=0, to=100, orient=tk.HORIZONTAL, value=100, command=update_volume)
+volume_slider.grid(row=2, column=2, padx=10, pady=10)
 
 # Translate and Play Button
 translate_button = ttk.Button(root, text="Translate and Play", command=translate_and_play)
