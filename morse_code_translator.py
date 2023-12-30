@@ -1,5 +1,10 @@
 # Morse code translator
 
+# imports
+import pygame
+import time
+import numpy as np
+
 morse_code_dict = {
     'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
     'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
@@ -31,13 +36,46 @@ def morse_to_text(morse_code):
                     text += key
     return text
 
+def generate_tone(frequency, duration_ms):
+    pygame.mixer.init()
+    sample_rate = 44100
+    volume = 1000
+
+    t = np.linspace(0, duration_ms / 1000, int(sample_rate * duration_ms / 1000), endpoint=False)
+    signal = volume * np.sin(2 * np.pi * frequency * t)
+
+    # Convert signal to 2D array for stereo sound
+    stereo_signal = np.array([signal, signal]).T  # Transpose the array
+
+    # Ensure the array is C-contiguous
+    stereo_signal = np.ascontiguousarray(stereo_signal)
+
+    sound = pygame.sndarray.make_sound(stereo_signal.astype(np.int16))
+    sound.play()
+    pygame.time.delay(int(duration_ms) + 50)  # Add a small delay to ensure proper playback
+
+
+def text_to_morse_sound(text):
+    morse_code = text_to_morse(text)
+
+    # Set the speed of Morse code playback (adjust as needed)
+    dot_duration = 0.2
+    dash_duration = 3 * dot_duration
+    space_duration = 2 * dot_duration
+
+
+    for char in morse_code:
+        if char == '.':
+            generate_tone(500, dot_duration * 1000)
+            #time.sleep(dot_duration)
+        elif char == '-':
+            generate_tone(500, dash_duration * 1000)
+            #time.sleep(dash_duration)
+        elif char == ' ':
+            time.sleep(space_duration)
+
 if __name__ == "__main__":
     input_text = "Hello World"
     
-    # Encode text to Morse code
-    morse_result = text_to_morse(input_text)
-    print(f"Text to Morse Code: {morse_result}")
-
-    # Decode Morse code to text
-    text_result = morse_to_text(morse_result)
-    print(f"Morse Code to Text: {text_result}")
+    # text to Morse code sound
+    text_to_morse_sound(input_text)
