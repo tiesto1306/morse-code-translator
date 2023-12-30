@@ -4,6 +4,8 @@
 import pygame
 import time
 import numpy as np
+import tkinter as tk
+from tkinter import ttk
 
 morse_code_dict = {
     'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
@@ -15,6 +17,8 @@ morse_code_dict = {
     '/': '-..-.', '(': '-.--.', ')': '-.--.-', '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.',
     '-': '-....-', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.'
 }
+
+pygame.mixer.init()
 
 def text_to_morse(text):
     morse_code = ''
@@ -36,10 +40,9 @@ def morse_to_text(morse_code):
                     text += key
     return text
 
-def generate_tone(frequency, duration_ms):
-    pygame.mixer.init()
+def generate_tone(frequency, duration_ms, volume):
     sample_rate = 44100
-    volume = 1000
+    volume = volume * 10
 
     t = np.linspace(0, duration_ms / 1000, int(sample_rate * duration_ms / 1000), endpoint=False)
     signal = volume * np.sin(2 * np.pi * frequency * t)
@@ -55,7 +58,7 @@ def generate_tone(frequency, duration_ms):
     pygame.time.delay(int(duration_ms) + 50)  # Add a small delay to ensure proper playback
 
 
-def text_to_morse_sound(text):
+def text_to_morse_sound(text, frequency, volume):
     morse_code = text_to_morse(text)
 
     # Set the speed of Morse code playback (adjust as needed)
@@ -66,10 +69,52 @@ def text_to_morse_sound(text):
 
     for char in morse_code:
         if char == '.':
-            generate_tone(500, dot_duration * 1000)
+            generate_tone(frequency, dot_duration * 1000, volume)
             #time.sleep(dot_duration)
         elif char == '-':
-            generate_tone(500, dash_duration * 1000)
+            generate_tone(frequency, dash_duration * 1000, volume)
             #time.sleep(dash_duration)
         elif char == ' ':
             time.sleep(space_duration)
+
+def translate_and_play():
+    input_text = text_entry.get()
+    frequency = float(frequency_entry.get())
+    volume = float(volume_entry.get())
+    
+    # Translate text to Morse code and play the sound
+    text_to_morse_sound(input_text, frequency, volume)
+
+# GUI setup
+root = tk.Tk()
+root.title("Morse Code Translator")
+
+# Text Entry
+text_label = ttk.Label(root, text="Enter Text:")
+text_label.grid(row=0, column=0, padx=10, pady=10, sticky="W")
+
+text_entry = ttk.Entry(root, width=30)
+text_entry.grid(row=0, column=1, padx=10, pady=10)
+
+# Frequency Entry
+frequency_label = ttk.Label(root, text="Frequency (Hz):")
+frequency_label.grid(row=1, column=0, padx=10, pady=10, sticky="W")
+
+frequency_entry = ttk.Entry(root, width=10)
+frequency_entry.insert(0, "500")  # Default frequency
+frequency_entry.grid(row=1, column=1, padx=10, pady=10)
+
+# Volume Entry
+volume_label = ttk.Label(root, text="Volume:")
+volume_label.grid(row=2, column=0, padx=10, pady=10, sticky="W")
+
+volume_entry = ttk.Entry(root, width=10)
+volume_entry.insert(0, "1.0")  # Default volume
+volume_entry.grid(row=2, column=1, padx=10, pady=10)
+
+# Translate and Play Button
+translate_button = ttk.Button(root, text="Translate and Play", command=translate_and_play)
+translate_button.grid(row=3, column=0, columnspan=2, pady=20)
+
+# Run the GUI
+root.mainloop()
