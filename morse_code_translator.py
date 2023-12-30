@@ -73,9 +73,3 @@ def text_to_morse_sound(text):
             #time.sleep(dash_duration)
         elif char == ' ':
             time.sleep(space_duration)
-
-if __name__ == "__main__":
-    input_text = "Hello World"
-    
-    # text to Morse code sound
-    text_to_morse_sound(input_text)
